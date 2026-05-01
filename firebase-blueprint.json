@@ -1,0 +1,78 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information and role.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["client", "agent", "admin"] },
+        "companyId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role", "createdAt"]
+    },
+    "Company": {
+      "title": "Company",
+      "description": "Information about a customer company.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "sageVersion": { "type": "string" },
+        "contactEmail": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "createdAt"]
+    },
+    "Ticket": {
+      "title": "Ticket",
+      "description": "A support ticket for a Sage product.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "in_progress", "closed"] },
+        "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"] },
+        "sageModule": { "type": "string" },
+        "companyId": { "type": "string" },
+        "clientId": { "type": "string" },
+        "agentId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "status", "priority", "sageModule", "companyId", "clientId", "createdAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A message or comment within a ticket.",
+      "type": "object",
+      "properties": {
+        "content": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["content", "authorId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Storage for user profiles."
+    },
+    "/companies/{companyId}": {
+      "schema": "Company",
+      "description": "Storage for client companies."
+    },
+    "/tickets/{ticketId}": {
+      "schema": "Ticket",
+      "description": "Storage for support tickets."
+    },
+    "/tickets/{ticketId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Storage for messages in a ticket."
+    }
+  }
+}

@@ -1,0 +1,116 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global Helpers
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'zeynad91@gmail.com' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+    
+    function isAgent() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['agent', 'admin']
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // --- Entity Validations ---
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role', 'createdAt']) &&
+             data.keys().size() <= 7 &&
+             data.uid == request.auth.uid &&
+             data.email == request.auth.token.email &&
+             data.role in ['client', 'agent', 'admin'] &&
+             data.createdAt == request.time;
+    }
+
+    function isValidCompany(data) {
+      return data.keys().hasAll(['name', 'createdAt']) &&
+             data.name is string && data.name.size() <= 200 &&
+             data.createdAt == request.time;
+    }
+
+    function isValidTicket(data) {
+      return data.keys().hasAll(['title', 'description', 'status', 'priority', 'sageModule', 'companyId', 'clientId', 'createdAt']) &&
+             data.title is string && data.title.size() <= 200 &&
+             data.description is string && data.description.size() <= 10000 &&
+             data.status in ['open', 'in_progress', 'closed'] &&
+             data.priority in ['low', 'medium', 'high', 'urgent'] &&
+             data.sageModule is string &&
+             data.clientId == request.auth.uid &&
+             data.createdAt == request.time;
+    }
+
+    function isValidMessage(data) {
+      return data.keys().hasAll(['content', 'authorId', 'createdAt']) &&
+             data.content is string && data.content.size() <= 5000 &&
+             data.authorId == request.auth.uid &&
+             data.createdAt == request.time;
+    }
+
+    // --- Match Blocks ---
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAgent());
+      allow create: if isSignedIn() && isValidId(userId) && userId == request.auth.uid && isValidUser(incoming());
+      allow update: if isSignedIn() && (
+        (request.auth.uid == userId && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'companyId'])) ||
+        isAdmin()
+      );
+    }
+
+    match /companies/{companyId} {
+      allow read: if isSignedIn();
+      allow create, update: if isAdmin() && isValidCompany(incoming());
+    }
+
+    match /tickets/{ticketId} {
+      allow list: if isSignedIn() && (isAgent() || resource.data.clientId == request.auth.uid);
+      allow get: if isSignedIn() && (isAgent() || resource.data.clientId == request.auth.uid);
+      
+      allow create: if isSignedIn() && isValidId(ticketId) && isValidTicket(incoming()) && (
+        // Temporarily allow creation without strict company exists check if owner/admin
+        (isAgent() || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'client')
+      );
+      
+      allow update: if isSignedIn() && (
+        isAdmin() ||
+        (isAgent() && incoming().diff(existing()).affectedKeys().hasAny(['status', 'agentId', 'priority', 'updatedAt'])) ||
+        (existing().clientId == request.auth.uid && existing().status != 'closed' && 
+         incoming().diff(existing()).affectedKeys().hasOnly(['description', 'title', 'updatedAt']))
+      );
+    }
+
+    match /tickets/{ticketId}/messages/{messageId} {
+      allow read: if isSignedIn() && (isAgent() || get(/databases/$(database)/documents/tickets/$(ticketId)).data.clientId == request.auth.uid);
+      allow create: if isSignedIn() && isValidId(messageId) && isValidMessage(incoming()) && (
+        isAgent() || get(/databases/$(database)/documents/tickets/$(ticketId)).data.clientId == request.auth.uid
+      ) && exists(/databases/$(database)/documents/tickets/$(ticketId));
+    }
+
+    match /system/config {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}
