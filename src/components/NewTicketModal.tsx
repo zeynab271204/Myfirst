@@ -36,16 +36,40 @@ export function NewTicketModal({ onClose }: NewTicketModalProps) {
     setError(null);
 
     try {
-      await addDoc(collection(db, 'tickets'), {
+      // Fetch company name first
+      let companyName = 'Client';
+      if (profile.companyId) {
+        const { getDoc, doc } = await import('firebase/firestore');
+        const companySnap = await getDoc(doc(db, 'companies', profile.companyId));
+        if (companySnap.exists()) {
+          companyName = companySnap.data().name;
+        }
+      }
+
+      const docRef = await addDoc(collection(db, 'tickets'), {
         title,
         description,
         status: 'open',
         priority,
         sageModule,
-        companyId: profile.companyId || 'default_company', // Should be properly assigned
+        companyId: profile.companyId || 'default_company',
+        companyName,
         clientId: profile.uid,
+        clientName: profile.displayName || 'Utilisateur',
         createdAt: serverTimestamp(),
       });
+
+      // Notify administrator via background API
+      fetch('/api/notify-new-ticket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticketId: docRef.id,
+          title,
+          clientName: profile.displayName || 'Utilisateur'
+        })
+      }).catch(err => console.error('Notification error:', err));
+
       onClose();
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, 'tickets');

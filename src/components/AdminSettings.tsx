@@ -9,7 +9,8 @@ import {
   Smartphone, 
   Mail, 
   Save,
-  MessageSquare
+  MessageSquare,
+  ExternalLink
 } from 'lucide-react';
 
 export function AdminSettings() {
@@ -160,6 +161,45 @@ export function AdminSettings() {
                   Les modifications apportées ici sont appliquées en temps réel à l'ensemble du portail. 
                   Veillez à ne pas activer le mode maintenance sans informer vos clients au préalable.
                 </p>
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#e2e8f0] rounded-sm shadow-sm overflow-hidden">
+              <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ExternalLink size={16} className="text-blue-600" />
+                  <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Accès Client Public</h3>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Portail Actif</span>
+                </div>
+              </div>
+              <div className="p-6">
+                <p className="text-xs text-slate-500 mb-4 font-medium leading-relaxed">
+                  Utilisez ce lien pour permettre à vos clients d'accéder à leur espace de support. 
+                  Vous pouvez également configurer un <span className="text-slate-900 font-bold">CNAME</span> (ex: support.votre-domaine.com) pour pointer vers cette adresse.
+                </p>
+                <div className="group relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <ShieldAlert size={14} className="text-slate-300" />
+                  </div>
+                  <input 
+                    readOnly
+                    value={window.location.origin}
+                    className="w-full pl-9 pr-24 py-3 bg-slate-50 border border-slate-200 rounded-sm text-xs font-mono text-blue-600 focus:outline-none"
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.origin);
+                      alert("Lien professionnel copié dans le presse-papier !");
+                    }}
+                    className="absolute right-1.5 top-1.5 bottom-1.5 px-4 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-sm hover:bg-blue-700 transition-all flex items-center gap-2"
+                  >
+                    Copier le lien
+                  </button>
+                </div>
               </div>
             </div>
 

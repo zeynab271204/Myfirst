@@ -13,7 +13,7 @@ import {
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { Ticket, Message, TicketStatus } from '../types';
-import { Send, X, User, ShieldCheck, Clock, CheckCircle2, History } from 'lucide-react';
+import { Send, X, User, ShieldCheck, Clock, CheckCircle2, History, Mail, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
 
@@ -24,6 +24,7 @@ interface TicketDetailProps {
 
 export function TicketDetail({ ticketId, onClose }: TicketDetailProps) {
   const { profile } = useAuth();
+  const isAgent = profile?.role === 'agent' || profile?.role === 'admin';
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -95,6 +96,56 @@ export function TicketDetail({ ticketId, onClose }: TicketDetailProps) {
     }
   };
 
+  const [dispatching, setDispatching] = useState<'email' | 'whatsapp' | null>(null);
+  const [consultants, setConsultants] = useState<{uid: string, displayName: string, email: string}[]>([]);
+  const [selectedConsultant, setSelectedConsultant] = useState<string>('');
+
+  useEffect(() => {
+    if (isAgent) {
+      fetch('/api/consultants')
+        .then(res => res.json())
+        .then(data => setConsultants(Array.isArray(data) ? data : []))
+        .catch(err => {
+          console.error('Error fetching consultants:', err);
+          setConsultants([]);
+        });
+    }
+  }, [isAgent]);
+
+  const dispatchNotification = async (type: 'email' | 'whatsapp') => {
+    if (!ticket || dispatching) return;
+    if (!selectedConsultant) {
+      alert("Veuillez sélectionner un consultant d'abord.");
+      return;
+    }
+
+    setDispatching(type);
+    try {
+      const response = await fetch('/api/dispatch-assignment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticketId: ticket.id,
+          type,
+          consultantId: selectedConsultant,
+          details: {
+            title: ticket.title,
+            companyName: ticket.companyName,
+            sageModule: ticket.sageModule
+          }
+        })
+      });
+      if (response.ok) {
+        alert(`Notification ${type} envoyée avec succès au consultant.`);
+      }
+    } catch (error) {
+      console.error('Dispatch error:', error);
+      alert("Erreur lors de l'envoi via API.");
+    } finally {
+      setDispatching(null);
+    }
+  };
+
   const updateStatus = async (newStatus: TicketStatus) => {
     try {
       await updateDoc(doc(db, 'tickets', ticketId), {
@@ -107,8 +158,6 @@ export function TicketDetail({ ticketId, onClose }: TicketDetailProps) {
   };
 
   if (!ticket) return null;
-
-  const isAgent = profile?.role === 'agent' || profile?.role === 'admin';
 
   return (
     <div className="flex flex-col h-full bg-[#f8fafc]">
@@ -135,21 +184,55 @@ export function TicketDetail({ ticketId, onClose }: TicketDetailProps) {
         </div>
 
         {isAgent && (
-          <div className="mt-6 flex gap-3">
-            <button 
-              onClick={() => updateStatus('in_progress')}
-              disabled={ticket.status === 'in_progress'}
-              className="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50 transition-colors shadow-sm"
-            >
-              Prendre en charge
-            </button>
-            <button 
-              onClick={() => updateStatus('closed')}
-              disabled={ticket.status === 'closed'}
-              className="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-50 transition-colors shadow-sm"
-            >
-              Clôturer définitivement
-            </button>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <div className="flex gap-2">
+              <button 
+                onClick={() => updateStatus('in_progress')}
+                disabled={ticket.status === 'in_progress'}
+                className="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50 transition-colors shadow-sm"
+              >
+                Prendre en charge
+              </button>
+              <button 
+                onClick={() => updateStatus('closed')}
+                disabled={ticket.status === 'closed'}
+                className="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-50 transition-colors shadow-sm"
+              >
+                Clôturer
+              </button>
+            </div>
+
+            <div className="h-8 w-[1px] bg-slate-200 hidden md:block" />
+            
+            <div className="flex items-center gap-2">
+               <select 
+                 value={selectedConsultant}
+                 onChange={(e) => setSelectedConsultant(e.target.value)}
+                 className="bg-white border border-slate-200 rounded-sm px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-blue-600 h-[34px]"
+               >
+                 <option value="">-- Choisir un consultant --</option>
+                 {consultants.map(c => (
+                   <option key={c.uid} value={c.uid}>{c.displayName}</option>
+                 ))}
+               </select>
+
+              <button 
+                onClick={() => dispatchNotification('email')}
+                disabled={dispatching !== null}
+                className="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition-colors flex items-center gap-2 disabled:opacity-50 h-[34px]"
+              >
+                <Mail size={14} /> 
+                {dispatching === 'email' ? 'Envoi...' : 'Attribution Email'}
+              </button>
+              <button 
+                onClick={() => dispatchNotification('whatsapp')}
+                disabled={dispatching !== null}
+                className="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-100 transition-colors flex items-center gap-2 disabled:opacity-50 h-[34px]"
+              >
+                <Phone size={14} /> 
+                {dispatching === 'whatsapp' ? 'Envoi...' : 'WhatsApp API'}
+              </button>
+            </div>
           </div>
         )}
       </div>

@@ -11,6 +11,7 @@ import { AdminCompanies } from './AdminCompanies';
 
 import { HomePage } from './HomePage';
 import { AdminSettings } from './AdminSettings';
+import { KnowledgeBase } from './KnowledgeBase';
 
 export function Dashboard() {
   const { profile } = useAuth();
@@ -48,6 +49,8 @@ export function Dashboard() {
         return <AdminCompanies />;
       case 'settings':
         return <AdminSettings />;
+      case 'kb':
+        return <KnowledgeBase />;
       default:
         return <div className="p-12 text-center text-slate-400">Vue en cours de développement...</div>;
     }
@@ -60,6 +63,7 @@ export function Dashboard() {
       case 'users': return 'Gestion des Utilisateurs';
       case 'companies': return 'Parc Clients Sage';
       case 'settings': return 'Configuration Système';
+      case 'kb': return 'Base de Connaissances';
       default: return 'SageSupport Pro';
     }
   };

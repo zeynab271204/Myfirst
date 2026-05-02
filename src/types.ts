@@ -1,7 +1,17 @@
 export type UserRole = 'client' | 'agent' | 'admin';
 export type TicketStatus = 'open' | 'in_progress' | 'closed';
 export type TicketPriority = 'low' | 'medium' | 'high' | 'urgent';
-export type DashboardView = 'home' | 'tickets' | 'users' | 'companies' | 'settings';
+export interface KBArticle {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  authorId: string;
+  isPublished: boolean;
+  updatedAt: any;
+}
+
+export type DashboardView = 'home' | 'tickets' | 'users' | 'companies' | 'settings' | 'kb';
 
 export interface SystemConfig {
   maintenanceMode: boolean;
@@ -24,7 +34,11 @@ export interface Company {
   id: string;
   name: string;
   sageVersion?: string;
+  sageEdition?: string;
   contactEmail?: string;
+  contactPhone?: string;
+  contractType?: 'SaaS' | 'On-Premise' | 'Hosted' | 'DSU';
+  renewalDate?: any;
   createdAt: any;
 }
 
@@ -36,7 +50,9 @@ export interface Ticket {
   priority: TicketPriority;
   sageModule: string;
   companyId: string;
+  companyName?: string;
   clientId: string;
+  clientName?: string;
   agentId?: string;
   createdAt: any;
   updatedAt: any;

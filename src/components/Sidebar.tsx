@@ -20,6 +20,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
   
   const navItems = [
     { icon: LayoutDashboard, label: 'Accueil', id: 'home' as DashboardView },
+    { icon: HelpCircle, label: 'Aide & FAQ', id: 'kb' as DashboardView },
     { icon: TicketIcon, label: 'Base de Tickets', id: 'tickets' as DashboardView },
     { icon: Building2, label: 'Parc Clients', id: 'companies' as DashboardView, restricted: true },
     { icon: Users, label: 'Collaborateurs', id: 'users' as DashboardView, restricted: true },

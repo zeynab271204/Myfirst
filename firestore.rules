@@ -68,7 +68,20 @@ service cloud.firestore {
              data.createdAt == request.time;
     }
 
+    function isValidKBArticle(data) {
+      return data.keys().hasAll(['title', 'content', 'category', 'authorId', 'isPublished', 'updatedAt']) &&
+             data.title is string && data.title.size() <= 200 &&
+             data.content is string && data.content.size() <= 50000 &&
+             data.updatedAt == request.time;
+    }
+
     // --- Match Blocks ---
+
+    match /kb/{articleId} {
+      allow read: if isSignedIn() && (isAgent() || resource.data.isPublished == true);
+      allow create, update: if isAgent() && isValidKBArticle(incoming());
+      allow delete: if isAdmin();
+    }
 
     match /users/{userId} {
       allow read: if isSignedIn() && (request.auth.uid == userId || isAgent());

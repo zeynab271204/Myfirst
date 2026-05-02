@@ -55,6 +55,20 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["content", "authorId", "createdAt"]
+    },
+    "KBArticle": {
+      "title": "Knowledge Base Article",
+      "description": "An article in the knowledge base.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "category": { "type": "string" },
+        "authorId": { "type": "string" },
+        "isPublished": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "content", "category", "authorId", "isPublished", "updatedAt"]
     }
   },
   "firestore": {
@@ -73,6 +87,10 @@
     "/tickets/{ticketId}/messages/{messageId}": {
       "schema": "Message",
       "description": "Storage for messages in a ticket."
+    },
+    "/kb/{articleId}": {
+      "schema": "KBArticle",
+      "description": "Storage for knowledge base articles."
     }
   }
 }
