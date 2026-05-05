@@ -217,12 +217,14 @@ export function KnowledgeBase() {
                           setCurrentArticle(article);
                           setIsEditing(true);
                         }}
+                        title="Modifier l'article"
                         className="p-2 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-sm transition-all"
                       >
                         <Save size={16} />
                       </button>
                       <button 
                          onClick={() => deleteArticle(article.id)}
+                         title="Supprimer l'article"
                          className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-sm transition-all"
                       >
                         <Trash2 size={16} />

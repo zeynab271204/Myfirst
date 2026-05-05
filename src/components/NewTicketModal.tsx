@@ -119,7 +119,7 @@ export function NewTicketModal({ onClose }: NewTicketModalProps) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
             <div className="space-y-2">
               <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Logiciel Sage</label>
               <div className="relative">
@@ -139,20 +139,25 @@ export function NewTicketModal({ onClose }: NewTicketModalProps) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Niveau d'Urgence</label>
-              <div className="flex gap-2">
-                {(['low', 'medium', 'high', 'urgent'] as TicketPriority[]).map((p) => (
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Urgence</label>
+              <div className="flex gap-1.5">
+                {[
+                  { value: 'low', label: 'Basse' },
+                  { value: 'medium', label: 'Normale' },
+                  { value: 'high', label: 'Haute' },
+                  { value: 'urgent', label: 'Critique' }
+                ].map((p) => (
                   <button
-                    key={p}
+                    key={p.value}
                     type="button"
-                    onClick={() => setPriority(p)}
-                    className={`flex-1 py-3 text-[10px] font-black uppercase tracking-wider rounded-sm transition-all border ${
-                      priority === p 
+                    onClick={() => setPriority(p.value as TicketPriority)}
+                    className={`flex-1 py-3 text-[9px] font-black uppercase tracking-tight rounded-sm transition-all border ${
+                      priority === p.value 
                       ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/10' 
                       : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    {p}
+                    {p.label}
                   </button>
                 ))}
               </div>

@@ -37,7 +37,7 @@ service cloud.firestore {
 
     function isValidUser(data) {
       return data.keys().hasAll(['uid', 'email', 'role', 'createdAt']) &&
-             data.keys().size() <= 7 &&
+             data.keys().size() <= 8 &&
              data.uid == request.auth.uid &&
              data.email == request.auth.token.email &&
              data.role in ['client', 'agent', 'admin'] &&
@@ -57,7 +57,7 @@ service cloud.firestore {
              data.status in ['open', 'in_progress', 'closed'] &&
              data.priority in ['low', 'medium', 'high', 'urgent'] &&
              data.sageModule is string &&
-             data.clientId == request.auth.uid &&
+             (data.clientId == 'anonymous' || (isSignedIn() && data.clientId == request.auth.uid)) &&
              data.createdAt == request.time;
     }
 
@@ -85,11 +85,15 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if isSignedIn() && (request.auth.uid == userId || isAgent());
-      allow create: if isSignedIn() && isValidId(userId) && userId == request.auth.uid && isValidUser(incoming());
+      // Special allowance for searching by email during first login
+      allow list: if isSignedIn() && (isAgent() || resource.data.email == request.auth.token.email);
+      
+      allow create: if (isSignedIn() && isValidId(userId) && userId == request.auth.uid && isValidUser(incoming())) || isAdmin();
       allow update: if isSignedIn() && (
-        (request.auth.uid == userId && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'companyId'])) ||
+        (request.auth.uid == userId && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'companyId', 'phone'])) ||
         isAdmin()
       );
+      allow delete: if isAdmin() || (isSignedIn() && request.auth.uid == userId && existing().isPreRegistered == true);
     }
 
     match /companies/{companyId} {
@@ -101,10 +105,7 @@ service cloud.firestore {
       allow list: if isSignedIn() && (isAgent() || resource.data.clientId == request.auth.uid);
       allow get: if isSignedIn() && (isAgent() || resource.data.clientId == request.auth.uid);
       
-      allow create: if isSignedIn() && isValidId(ticketId) && isValidTicket(incoming()) && (
-        // Temporarily allow creation without strict company exists check if owner/admin
-        (isAgent() || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'client')
-      );
+      allow create: if isValidId(ticketId) && isValidTicket(incoming());
       
       allow update: if isSignedIn() && (
         isAdmin() ||

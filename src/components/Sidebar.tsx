@@ -13,18 +13,19 @@ import { DashboardView } from '../types';
 interface SidebarProps {
   currentView: DashboardView;
   onViewChange: (view: DashboardView) => void;
+  onClose?: () => void;
 }
 
-export function Sidebar({ currentView, onViewChange }: SidebarProps) {
+export function Sidebar({ currentView, onViewChange, onClose }: SidebarProps) {
   const { profile, logout } = useAuth();
   
   const navItems = [
-    { icon: LayoutDashboard, label: 'Accueil', id: 'home' as DashboardView },
-    { icon: HelpCircle, label: 'Aide & FAQ', id: 'kb' as DashboardView },
-    { icon: TicketIcon, label: 'Base de Tickets', id: 'tickets' as DashboardView },
+    { icon: LayoutDashboard, label: 'Tableau de bord', id: 'home' as DashboardView },
+    { icon: HelpCircle, label: 'Espace Aide', id: 'kb' as DashboardView },
+    { icon: TicketIcon, label: 'Tickets Support', id: 'tickets' as DashboardView },
     { icon: Building2, label: 'Parc Clients', id: 'companies' as DashboardView, restricted: true },
-    { icon: Users, label: 'Collaborateurs', id: 'users' as DashboardView, restricted: true },
-    { icon: Settings, label: 'Paramètres Bureau', id: 'settings' as DashboardView, restricted: true },
+    { icon: Users, label: 'Gestion Equipe', id: 'users' as DashboardView, restricted: true },
+    { icon: Settings, label: 'Paramètres', id: 'settings' as DashboardView, restricted: true },
   ];
 
   const isManagement = profile?.role === 'admin' || profile?.role === 'agent';
@@ -33,11 +34,11 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
   return (
     <div className="w-[240px] bg-white border-r border-[#e2e8f0] text-slate-600 flex flex-col h-full shrink-0 font-sans">
       <div className="p-6 mb-4">
-        <h1 className="text-xl font-bold text-slate-800 tracking-tight">
-          SAGE<span className="text-blue-600">SUPPORT</span>
+        <h1 className="text-xl font-black text-brand-primary tracking-tight">
+          ITECH<span className="text-brand-secondary">AFRIQUE</span>
         </h1>
         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-          Portail Partenaire Agréé
+          Centre de Compétence SAGE
         </p>
       </div>
 
@@ -51,15 +52,18 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
           return (
             <button
               key={index}
-              onClick={() => onViewChange(item.id)}
+              onClick={() => {
+                onViewChange(item.id);
+                if (window.innerWidth < 768 && onClose) onClose();
+              }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-md text-sm font-medium transition-all ${
                 isActive 
-                ? 'bg-blue-50 text-blue-700' 
+                ? 'bg-brand-primary/5 text-brand-primary' 
                 : 'hover:bg-slate-50 text-slate-600'
               }`}
             >
-              <div className={`w-1 h-4 rounded-full ${isActive ? 'bg-blue-600' : 'bg-transparent'}`} />
-              <item.icon size={18} className={isActive ? 'text-blue-700' : 'text-slate-400'} />
+              <div className={`w-1 h-4 rounded-full ${isActive ? 'bg-brand-primary' : 'bg-transparent'}`} />
+              <item.icon size={18} className={isActive ? 'text-brand-primary' : 'text-slate-400'} />
               {item.label}
             </button>
           );

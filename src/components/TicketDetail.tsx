@@ -131,7 +131,9 @@ export function TicketDetail({ ticketId, onClose }: TicketDetailProps) {
           details: {
             title: ticket.title,
             companyName: ticket.companyName,
-            sageModule: ticket.sageModule
+            sageModule: ticket.sageModule,
+            description: ticket.description,
+            priority: ticket.priority
           }
         })
       });
@@ -157,6 +159,12 @@ export function TicketDetail({ ticketId, onClose }: TicketDetailProps) {
     }
   };
 
+  const STATUS_LABELS: Record<TicketStatus, string> = {
+    open: 'Ouvert',
+    in_progress: 'En cours',
+    closed: 'Clôturé'
+  };
+
   if (!ticket) return null;
 
   return (
@@ -168,11 +176,30 @@ export function TicketDetail({ ticketId, onClose }: TicketDetailProps) {
               <span className="font-mono font-bold text-xs py-1 px-2 border border-slate-200 bg-slate-50 rounded-sm text-slate-500 leading-none">
                 #SG-{ticket.id.slice(0, 8).toUpperCase()}
               </span>
-              <span className={`px-2 py-1 rounded-[2px] text-[10px] font-bold uppercase bg-blue-50 text-blue-700 border border-blue-100`}>
+              <span className={`px-2 py-1 rounded-[2px] text-[10px] font-bold uppercase bg-brand-primary/5 text-brand-primary border border-brand-primary/10`}>
                 {ticket.sageModule}
+              </span>
+              <span className={`px-2 py-1 rounded-[2px] text-[10px] font-bold uppercase bg-brand-secondary/10 text-brand-secondary border border-brand-secondary/20`}>
+                {STATUS_LABELS[ticket.status]}
               </span>
             </div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">{ticket.title}</h2>
+            {(ticket.contactEmail || ticket.contactPhone) && (
+              <div className="flex flex-wrap gap-4 mt-2">
+                {ticket.contactEmail && (
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-slate-50 px-3 py-1.5 border border-slate-100 rounded-sm">
+                    <Mail size={12} className="text-brand-primary" />
+                    {ticket.contactEmail}
+                  </div>
+                )}
+                {ticket.contactPhone && (
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-slate-50 px-3 py-1.5 border border-slate-100 rounded-sm">
+                    <Phone size={12} className="text-brand-secondary" />
+                    {ticket.contactPhone}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-sm text-slate-400 transition-colors border border-transparent hover:border-slate-200">
             <X size={20} />
@@ -219,7 +246,7 @@ export function TicketDetail({ ticketId, onClose }: TicketDetailProps) {
               <button 
                 onClick={() => dispatchNotification('email')}
                 disabled={dispatching !== null}
-                className="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition-colors flex items-center gap-2 disabled:opacity-50 h-[34px]"
+                className="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm bg-brand-primary/5 text-brand-primary border border-brand-primary/10 hover:bg-brand-primary/10 transition-colors flex items-center gap-2 disabled:opacity-50 h-[34px]"
               >
                 <Mail size={14} /> 
                 {dispatching === 'email' ? 'Envoi...' : 'Attribution Email'}
@@ -251,14 +278,14 @@ export function TicketDetail({ ticketId, onClose }: TicketDetailProps) {
                 className={`flex gap-4 ${isMe ? 'flex-row-reverse' : ''}`}
               >
                 <div className={`w-8 h-8 rounded-sm flex items-center justify-center shrink-0 border ${
-                  isMe ? 'bg-blue-600 border-blue-500' : 'bg-white border-[#e2e8f0]'
+                  isMe ? 'bg-brand-primary border-brand-primary' : 'bg-white border-[#e2e8f0]'
                 }`}>
-                  {isMe ? <User size={16} className="text-white" /> : <ShieldCheck size={16} className="text-slate-400" />}
+                  {isMe ? <User size={16} className="text-white" /> : <ShieldCheck size={16} className="text-brand-secondary" />}
                 </div>
                 <div className={`max-w-[80%] space-y-1.5 ${isMe ? 'items-end' : ''}`}>
                   <div className={`p-5 rounded-[4px] text-sm leading-relaxed border ${
                     isMe 
-                    ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-500/10' 
+                    ? 'bg-brand-primary text-white border-brand-primary shadow-md shadow-brand-primary/10' 
                     : 'bg-white text-slate-700 border-[#e2e8f0] shadow-sm'
                   }`}>
                     {msg.content}
@@ -285,12 +312,12 @@ export function TicketDetail({ ticketId, onClose }: TicketDetailProps) {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Écrivez votre message technique..."
-            className="flex-1 h-12 px-5 bg-[#f8fafc] border border-[#e2e8f0] rounded-sm text-sm focus:ring-1 focus:ring-blue-600 transition-all outline-none"
+            className="flex-1 h-12 px-5 bg-[#f8fafc] border border-[#e2e8f0] rounded-sm text-sm focus:ring-1 focus:ring-brand-primary transition-all outline-none"
           />
           <button
             type="submit"
             disabled={!newMessage.trim() || isSending}
-            className="h-12 px-6 bg-blue-600 text-white rounded-sm text-sm font-bold flex items-center gap-2 hover:bg-blue-700 disabled:opacity-50 transition-all shadow-sm active:scale-95"
+            className="h-12 px-6 bg-brand-primary text-white rounded-sm text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 disabled:opacity-50 transition-all shadow-sm active:scale-95"
           >
             <Send size={18} />
             Répondre

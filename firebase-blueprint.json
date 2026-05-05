@@ -10,6 +10,7 @@
         "displayName": { "type": "string" },
         "role": { "type": "string", "enum": ["client", "agent", "admin"] },
         "companyId": { "type": "string" },
+        "phone": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["uid", "email", "role", "createdAt"]
@@ -37,7 +38,11 @@
         "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"] },
         "sageModule": { "type": "string" },
         "companyId": { "type": "string" },
+        "companyName": { "type": "string" },
         "clientId": { "type": "string" },
+        "clientName": { "type": "string" },
+        "contactEmail": { "type": "string" },
+        "contactPhone": { "type": "string" },
         "agentId": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }

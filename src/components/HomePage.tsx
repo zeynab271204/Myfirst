@@ -57,11 +57,11 @@ export function HomePage({ onNavigate }: HomePageProps) {
         {/* Welcome Section */}
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-4">
-            <div className="px-3 py-1 bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-widest rounded-full">
+            <div className="px-3 py-1 bg-brand-primary/10 text-brand-primary text-[10px] font-black uppercase tracking-widest rounded-sm border border-brand-primary/10">
               {profile?.role === 'admin' ? 'Administration' : profile?.role === 'agent' ? 'Consultant Sage' : 'Espace Client'}
             </div>
             {userCompany && (
-              <div className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-slate-200">
+              <div className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest rounded-sm border border-slate-200">
                 {userCompany.name} • {userCompany.sageVersion}
               </div>
             )}
@@ -79,9 +79,9 @@ export function HomePage({ onNavigate }: HomePageProps) {
           <div className="space-y-12">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                { label: 'Tickets en attente', value: '8', icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50' },
-                { label: 'Parc Clients Sage', value: '24', icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50' },
-                { label: 'Taux de satisfaction', value: '98%', icon: ShieldCheck, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                { label: 'Attentes prioritaires', value: '8', icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50' },
+                { label: 'Entreprises gérées', value: '24', icon: Building2, color: 'text-brand-primary', bg: 'bg-brand-primary/5' },
+                { label: 'Satisfaction Client', value: '98%', icon: ShieldCheck, color: 'text-brand-secondary', bg: 'bg-brand-secondary/10' },
               ].map((stat, i) => (
                 <div key={i} className="bg-white p-6 border border-[#e2e8f0] rounded-sm shadow-sm">
                   <div className={`w-10 h-10 ${stat.bg} ${stat.color} rounded-sm flex items-center justify-center mb-4`}>
@@ -133,13 +133,13 @@ export function HomePage({ onNavigate }: HomePageProps) {
               <div className="lg:col-span-2 space-y-6">
                 <button 
                   onClick={() => onNavigate('tickets')}
-                  className="w-full group bg-blue-600 p-10 rounded-sm text-left shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all flex justify-between items-center"
+                  className="w-full group bg-brand-primary p-12 rounded-sm text-left shadow-2xl shadow-brand-primary/20 hover:bg-slate-800 transition-all flex justify-between items-center"
                 >
                   <div>
-                    <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Ouvrir un ticket</h3>
-                    <p className="text-blue-100 font-medium">Une question sur Sage ? Nos experts vous répondent.</p>
+                    <h3 className="text-3xl font-black text-white uppercase tracking-tight mb-2">Ouvrir un ticket</h3>
+                    <p className="text-white/60 font-medium italic">Une expertise Sage à votre service immédiat.</p>
                   </div>
-                  <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                  <div className="w-16 h-16 bg-brand-secondary rounded-full flex items-center justify-center text-brand-primary group-hover:scale-110 transition-transform shadow-lg shadow-brand-secondary/30">
                     <Zap size={32} />
                   </div>
                 </button>
@@ -151,7 +151,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
                     </div>
                     <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-4">Mes Interventions</h4>
                     <p className="text-xs text-slate-500 font-medium leading-relaxed mb-6">Suivez l'état d'avancement de vos demandes en cours.</p>
-                    <button onClick={() => onNavigate('tickets')} className="text-blue-600 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                    <button onClick={() => onNavigate('tickets')} className="text-brand-primary text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
                       Voir mes tickets <ArrowRight size={14} />
                     </button>
                   </div>
@@ -161,7 +161,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
                     </div>
                     <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-4">Base de Connaissances</h4>
                     <p className="text-xs text-slate-500 font-medium leading-relaxed mb-6">Consultez nos guides techniques et FAQ avant d'ouvrir un ticket.</p>
-                    <button onClick={() => onNavigate('kb')} className="text-blue-600 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                    <button onClick={() => onNavigate('kb')} className="text-brand-primary text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
                       Explorer la FAQ <ArrowRight size={14} />
                     </button>
                   </div>
@@ -174,7 +174,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Hotline d'urgence</h4>
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-sm flex items-center justify-center">
+                      <div className="w-10 h-10 bg-brand-primary/5 text-brand-primary rounded-sm flex items-center justify-center">
                         <Phone size={18} />
                       </div>
                       <div>
@@ -183,12 +183,12 @@ export function HomePage({ onNavigate }: HomePageProps) {
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-sm flex items-center justify-center">
+                      <div className="w-10 h-10 bg-brand-primary/5 text-brand-primary rounded-sm flex items-center justify-center">
                         <Mail size={18} />
                       </div>
                       <div>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Email</p>
-                        <p className="text-sm font-black text-slate-800">{config?.supportEmail || "support@sage.fr"}</p>
+                        <p className="text-sm font-black text-slate-800">{config?.supportEmail || "support@sagesupport.pro"}</p>
                       </div>
                     </div>
                   </div>
@@ -220,23 +220,23 @@ interface QuickActionCardProps {
 
 function QuickActionCard({ title, description, icon, onClick, theme }: QuickActionCardProps) {
   const themes = {
-    blue: "bg-blue-600 text-white",
+    blue: "bg-brand-primary text-white",
     dark: "bg-slate-900 text-white",
     amber: "bg-amber-500 text-white",
-    emerald: "bg-emerald-500 text-white"
+    emerald: "bg-brand-secondary text-brand-primary font-bold"
   };
 
   const btnText = {
-    blue: "text-blue-600",
+    blue: "text-brand-primary",
     dark: "text-slate-900",
     amber: "text-amber-600",
-    emerald: "text-emerald-600"
+    emerald: "text-brand-primary"
   };
 
   return (
     <button 
       onClick={onClick}
-      className="group bg-white p-8 border border-[#e2e8f0] rounded-sm hover:border-blue-400 transition-all text-left shadow-sm"
+      className="group bg-white p-8 border border-[#e2e8f0] rounded-sm hover:border-brand-primary/30 transition-all text-left shadow-sm hover:shadow-md"
     >
       <div className={`w-12 h-12 ${themes[theme]} rounded-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
         {icon}

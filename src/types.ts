@@ -27,6 +27,8 @@ export interface UserProfile {
   displayName: string;
   role: UserRole;
   companyId?: string;
+  phone?: string;
+  isPreRegistered?: boolean;
   createdAt: any;
 }
 
@@ -53,6 +55,8 @@ export interface Ticket {
   companyName?: string;
   clientId: string;
   clientName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
   agentId?: string;
   createdAt: any;
   updatedAt: any;

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { doc, onSnapshot, updateDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { SystemConfig } from '../types';
+import { motion } from 'motion/react';
 import { 
   Settings, 
   Bell, 
@@ -17,6 +18,18 @@ export function AdminSettings() {
   const [config, setConfig] = useState<SystemConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<string | null>(null);
+
+  const handleCopy = (text: string, message: string) => {
+    navigator.clipboard.writeText(text);
+    setCopyStatus(message);
+    setTimeout(() => setCopyStatus(null), 2000);
+  };
+
+  const getPortalLink = (type: 'client' | 'agent') => {
+    // We provide both formats: sub-path and query param for maximum compatibility
+    return `${window.location.origin}/?portal=${type}`;
+  };
 
   useEffect(() => {
     // We use a singleton document for system settings
@@ -168,37 +181,55 @@ export function AdminSettings() {
               <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ExternalLink size={16} className="text-blue-600" />
-                  <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Accès Client Public</h3>
+                  <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Liens d'Accès Rapide</h3>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Portail Actif</span>
-                </div>
-              </div>
-              <div className="p-6">
-                <p className="text-xs text-slate-500 mb-4 font-medium leading-relaxed">
-                  Utilisez ce lien pour permettre à vos clients d'accéder à leur espace de support. 
-                  Vous pouvez également configurer un <span className="text-slate-900 font-bold">CNAME</span> (ex: support.votre-domaine.com) pour pointer vers cette adresse.
-                </p>
-                <div className="group relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <ShieldAlert size={14} className="text-slate-300" />
-                  </div>
-                  <input 
-                    readOnly
-                    value={window.location.origin}
-                    className="w-full pl-9 pr-24 py-3 bg-slate-50 border border-slate-200 rounded-sm text-xs font-mono text-blue-600 focus:outline-none"
-                  />
-                  <button 
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(window.location.origin);
-                      alert("Lien professionnel copié dans le presse-papier !");
-                    }}
-                    className="absolute right-1.5 top-1.5 bottom-1.5 px-4 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-sm hover:bg-blue-700 transition-all flex items-center gap-2"
+                {copyStatus && (
+                  <motion.span 
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="text-[9px] font-black text-emerald-500 uppercase tracking-widest"
                   >
-                    Copier le lien
-                  </button>
+                    {copyStatus}
+                  </motion.span>
+                )}
+              </div>
+              <div className="p-6 space-y-6">
+                {/* Client Portal Link */}
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Portail Client (Public)</label>
+                  <div className="group relative flex flex-col sm:flex-row gap-2">
+                    <input 
+                      readOnly
+                      value={getPortalLink('client')}
+                      className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-sm text-[10px] sm:text-xs font-mono text-blue-600 focus:outline-none"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => handleCopy(getPortalLink('client'), 'Lien Client Copié !')}
+                      className="sm:w-24 px-4 py-3 bg-emerald-500 text-white text-[9px] font-black uppercase tracking-widest rounded-sm hover:bg-emerald-600 transition-all active:scale-95"
+                    >
+                      Copier
+                    </button>
+                  </div>
+                </div>
+
+                {/* Agent Portal Link */}
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Portail Consultant (Login)</label>
+                  <div className="group relative flex flex-col sm:flex-row gap-2">
+                    <input 
+                      readOnly
+                      value={getPortalLink('agent')}
+                      className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-sm text-[10px] sm:text-xs font-mono text-slate-600 focus:outline-none"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => handleCopy(getPortalLink('agent'), 'Lien Consultant Copié !')}
+                      className="sm:w-24 px-4 py-3 bg-slate-800 text-white text-[9px] font-black uppercase tracking-widest rounded-sm hover:bg-black transition-all active:scale-95"
+                    >
+                      Copier
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
