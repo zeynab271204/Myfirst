@@ -18,14 +18,14 @@ function AppContent() {
   // Handle direct links via URL paths or search params
   useEffect(() => {
     const handleNavigation = () => {
-      const path = window.location.pathname;
+      const pathToken = window.location.pathname.split('/').pop() || '';
       const params = new URLSearchParams(window.location.search);
       const portal = params.get('portal');
 
-      if (path === '/client' || path === '/support' || portal === 'client') {
+      if (pathToken === 'client' || pathToken === 'support' || portal === 'client') {
         setShowPublicForm(true);
         setIsAgentRoute(false);
-      } else if (path === '/agent' || path === '/admin' || path === '/login' || portal === 'agent') {
+      } else if (pathToken === 'agent' || pathToken === 'admin' || pathToken === 'login' || portal === 'agent') {
         setIsAgentRoute(true);
         setShowPublicForm(false);
       } else {

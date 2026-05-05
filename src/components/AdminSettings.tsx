@@ -27,8 +27,8 @@ export function AdminSettings() {
   };
 
   const getPortalLink = (type: 'client' | 'agent') => {
-    // We provide both formats: sub-path and query param for maximum compatibility
-    return `${window.location.origin}/?portal=${type}`;
+    const baseUrl = window.location.href.split('?')[0].replace(/\/$/, "");
+    return `${baseUrl}?portal=${type}`;
   };
 
   useEffect(() => {
